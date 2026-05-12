@@ -54,8 +54,6 @@ NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
 
-> Replace `yourpassword` with your actual PostgreSQL password. The `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` should be long, random strings — you can generate them with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`.
-
 ### 3. Create the database
 
 Open your PostgreSQL client (psql, pgAdmin, or TablePlus) and run:

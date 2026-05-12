@@ -1,59 +1,80 @@
-# Backend — Order & Inventory Management API
+# Backend — Order & Inventory Management
 
-Node.js + Express REST API with PostgreSQL, Prisma ORM, and JWT authentication.
+This is the REST API for the Order & Inventory Management System. It handles authentication, product management, order processing, and dashboard stats.
+
+---
 
 ## Tech Stack
 
-- Node.js + Express.js
-- PostgreSQL
-- Prisma ORM (v7)
-- JWT (access + refresh tokens)
-- bcryptjs
-- Zod (validation)
-- dotenv, helmet, cors, morgan
+- **Node.js** with ES Modules
+- **Express.js** v5
+- **PostgreSQL** — relational database
+- **Prisma ORM** v7 — database access and migrations
+- **JWT** — access + refresh token authentication
+- **bcryptjs** — password hashing
+- **Zod** — request validation
+- **dotenv, helmet, cors, morgan** — utilities and security
+
+---
 
 ## Prerequisites
 
-- Node.js v18+
-- PostgreSQL running locally
+Make sure you have these installed before starting:
 
-## Setup
+- [Node.js](https://nodejs.org/) v18 or higher
+- [PostgreSQL](https://www.postgresql.org/) running locally (or a remote connection string)
+- npm v8+
+
+---
+
+## Getting Started
 
 ### 1. Install dependencies
 
 ```bash
+cd backend
 npm install
 ```
 
-### 2. Configure environment variables
+### 2. Set up environment variables
 
-Copy `.env.example` to `.env` and fill in your values:
+Create a `.env` file in the `backend/` folder with the following:
 
 ```env
 DATABASE_URL="postgresql://postgres:yourpassword@localhost:5432/order_inventory_db"
+
 PORT=5000
-JWT_ACCESS_SECRET=change_this_to_a_long_random_string
-JWT_REFRESH_SECRET=change_this_to_another_long_random_string
+
+JWT_ACCESS_SECRET=replace_this_with_a_long_random_string
+JWT_REFRESH_SECRET=replace_this_with_another_long_random_string
 JWT_ACCESS_EXPIRES_IN=1d
 JWT_REFRESH_EXPIRES_IN=7d
+
 NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 ```
 
+> Replace `yourpassword` with your actual PostgreSQL password. The `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` should be long, random strings — you can generate them with `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`.
+
 ### 3. Create the database
+
+Open your PostgreSQL client (psql, pgAdmin, or TablePlus) and run:
 
 ```sql
 CREATE DATABASE order_inventory_db;
 ```
 
-### 4. Run migrations
+### 4. Run database migrations
+
+This creates all the tables based on the Prisma schema:
 
 ```bash
 npm run db:migrate
 ```
 
-When prompted, enter a migration name like `init`.
+When prompted, give the migration a name like `init`.
 
-### 5. Generate Prisma client
+### 5. Generate the Prisma client
 
 ```bash
 npm run db:generate
@@ -61,130 +82,174 @@ npm run db:generate
 
 ### 6. Seed the database
 
+This creates two default users and 5 sample products:
+
 ```bash
 npm run db:seed
 ```
 
-This creates two users and 5 sample products:
+After seeding, you can log in with:
 
 | Role  | Email                | Password       |
 |-------|----------------------|----------------|
 | Admin | admin@example.com    | password123    |
 | Staff | staff@example.com    | password123456 |
 
-### 7. Start the server
+### 7. Start the development server
 
 ```bash
 npm run dev
 ```
 
-Server runs at `http://localhost:5000`
+The server starts at **http://localhost:5000**
+
+You can verify it's running by visiting http://localhost:5000/health — it should return `{ "status": "ok" }`.
+
+---
 
 ## Available Scripts
 
-| Script           | Description                    |
-|------------------|--------------------------------|
-| `npm run dev`    | Start with nodemon (hot reload) |
-| `npm start`      | Start in production mode       |
-| `npm run db:migrate` | Run Prisma migrations      |
-| `npm run db:generate` | Regenerate Prisma client  |
-| `npm run db:seed` | Seed the database             |
-| `npm run db:studio` | Open Prisma Studio UI       |
+| Script              | What it does                                      |
+|---------------------|---------------------------------------------------|
+| `npm run dev`       | Start the server with hot reload (nodemon)        |
+| `npm start`         | Start the server without hot reload               |
+| `npm run db:migrate`| Create and apply a new migration (development)    |
+| `npm run db:generate`| Regenerate the Prisma client after schema changes|
+| `npm run db:seed`   | Seed the database with default users and products |
+| `npm run db:studio` | Open Prisma Studio — a visual database browser   |
+
+---
 
 ## Project Structure
 
 ```
 backend/
 ├── prisma/
-│   ├── schema.prisma
-│   ├── migrations/
-│   └── seed.js
-└── src/
-    ├── config/
-    │   ├── env.js
-    │   └── prisma.js
-    ├── middlewares/
-    │   ├── auth.middleware.js
-    │   ├── role.middleware.js
-    │   ├── validate.middleware.js
-    │   └── error.middleware.js
-    ├── modules/
-    │   ├── auth/
-    │   ├── products/
-    │   ├── orders/
-    │   └── dashboard/
-    ├── routes/
-    │   └── index.js
-    ├── utils/
-    │   ├── jwt.js
-    │   ├── response.js
-    │   ├── pagination.js
-    │   └── generateOrderNumber.js
-    ├── app.js
-    └── server.js
+│   ├── schema.prisma        # Database schema (tables, relations, enums)
+│   ├── migrations/          # Auto-generated migration files
+│   └── seed.js              # Database seeder
+│
+├── src/
+│   ├── config/
+│   │   ├── env.js           # Loads and validates environment variables
+│   │   └── prisma.js        # Prisma client instance
+│   │
+│   ├── middlewares/
+│   │   ├── auth.middleware.js     # JWT token verification
+│   │   ├── role.middleware.js     # Role-based access control
+│   │   ├── validate.middleware.js # Zod request validation
+│   │   └── error.middleware.js    # Centralized error handler
+│   │
+│   ├── modules/
+│   │   ├── auth/            # Login, refresh token, get current user
+│   │   ├── products/        # Product CRUD
+│   │   ├── orders/          # Order creation and management
+│   │   └── dashboard/       # Summary stats
+│   │
+│   ├── routes/
+│   │   └── index.js         # Mounts all module routes
+│   │
+│   ├── utils/
+│   │   ├── jwt.js           # Token generation and verification
+│   │   ├── response.js      # Consistent API response helpers
+│   │   ├── pagination.js    # Pagination utilities
+│   │   └── generateOrderNumber.js
+│   │
+│   ├── app.js               # Express app setup (middleware, routes)
+│   └── server.js            # Entry point — connects DB and starts server
+│
+├── .env                     # Your local environment variables (not committed)
+├── package.json
+└── README.md
 ```
+
+---
 
 ## API Reference
 
-Base URL: `http://localhost:5000/api/v1`
+All API routes are prefixed with `/api/v1`.
 
-All protected routes require: `Authorization: Bearer <accessToken>`
-
-### Auth
-
-| Method | Endpoint        | Auth | Description           |
-|--------|-----------------|------|-----------------------|
-| POST   | /auth/login     | No   | Login, returns tokens |
-| POST   | /auth/refresh   | No   | Refresh access token  |
-| GET    | /auth/me        | Yes  | Get current user      |
-
-**Login request:**
-```json
-{ "email": "admin@example.com", "password": "password123" }
+Protected routes require the `Authorization` header:
+```
+Authorization: Bearer <your_access_token>
 ```
 
-**Login response:**
+---
+
+### Authentication
+
+| Method | Endpoint         | Auth Required | Description                        |
+|--------|------------------|---------------|------------------------------------|
+| POST   | /auth/login      | No            | Login and receive tokens           |
+| POST   | /auth/refresh    | No            | Get a new access token             |
+| GET    | /auth/me         | Yes           | Get the currently logged-in user   |
+
+**POST /auth/login**
+
+Request body:
+```json
+{
+  "email": "admin@example.com",
+  "password": "password123"
+}
+```
+
+Response:
 ```json
 {
   "success": true,
   "message": "Login successful",
   "data": {
-    "accessToken": "...",
-    "refreshToken": "...",
-    "user": { "id": 1, "name": "Admin User", "email": "admin@example.com", "role": "admin" }
+    "accessToken": "eyJ...",
+    "refreshToken": "eyJ...",
+    "user": {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "role": "admin"
+    }
   }
 }
 ```
 
+---
+
 ### Products
 
-| Method | Endpoint       | Auth | Role  | Description        |
-|--------|----------------|------|-------|--------------------|
-| POST   | /products      | Yes  | Admin | Create product     |
-| GET    | /products      | Yes  | Any   | List with pagination |
-| GET    | /products/:id  | Yes  | Any   | Get by ID          |
-| PATCH  | /products/:id  | Yes  | Admin | Update product     |
-| DELETE | /products/:id  | Yes  | Admin | Delete product     |
+| Method | Endpoint         | Auth | Role  | Description                        |
+|--------|------------------|------|-------|------------------------------------|
+| GET    | /products        | Yes  | Any   | List products (paginated + search) |
+| GET    | /products/:id    | Yes  | Any   | Get a single product               |
+| POST   | /products        | Yes  | Admin | Create a new product               |
+| PATCH  | /products/:id    | Yes  | Admin | Update a product                   |
+| DELETE | /products/:id    | Yes  | Admin | Delete a product                   |
 
-Query params for GET /products: `page`, `limit`, `search` (name), `sku`
+**GET /products** — supports query params: `page`, `limit`, `search` (name), `sku`
 
-**Create product:**
+**POST /products** request body:
 ```json
-{ "name": "Laptop Pro", "sku": "LAP-001", "price": 999.99, "stockQuantity": 50 }
+{
+  "name": "Wireless Mouse",
+  "sku": "MOU-001",
+  "price": 29.99,
+  "stockQuantity": 100
+}
 ```
+
+---
 
 ### Orders
 
-| Method | Endpoint            | Auth | Role  | Description         |
-|--------|---------------------|------|-------|---------------------|
-| POST   | /orders             | Yes  | Any   | Create order        |
-| GET    | /orders             | Yes  | Any   | List with pagination |
-| GET    | /orders/:id         | Yes  | Any   | Get with full details |
-| PATCH  | /orders/:id/status  | Yes  | Admin | Update status       |
+| Method | Endpoint              | Auth | Role  | Description                        |
+|--------|-----------------------|------|-------|------------------------------------|
+| GET    | /orders               | Yes  | Any   | List orders (paginated + filter)   |
+| GET    | /orders/:id           | Yes  | Any   | Get order with full details        |
+| POST   | /orders               | Yes  | Any   | Create a new order                 |
+| PATCH  | /orders/:id/status    | Yes  | Admin | Update order status                |
 
-Query params for GET /orders: `page`, `limit`, `status` (pending/completed/cancelled)
+**GET /orders** — supports query params: `page`, `limit`, `status` (pending / completed / cancelled)
 
-**Create order:**
+**POST /orders** request body:
 ```json
 {
   "items": [
@@ -194,46 +259,68 @@ Query params for GET /orders: `page`, `limit`, `status` (pending/completed/cance
 }
 ```
 
-**Update status:**
+Creating an order automatically deducts stock from each product using a database transaction. If any product is out of stock, the entire order is rejected.
+
+**PATCH /orders/:id/status** request body:
 ```json
 { "status": "completed" }
 ```
 
+---
+
 ### Dashboard
 
-| Method | Endpoint          | Auth | Description     |
-|--------|-------------------|------|-----------------|
-| GET    | /dashboard/stats  | Yes  | Summary stats   |
+| Method | Endpoint           | Auth | Description                        |
+|--------|--------------------|------|------------------------------------|
+| GET    | /dashboard/stats   | Yes  | Total products, orders, low stock, recent orders |
 
-**Response:**
-```json
-{
-  "data": {
-    "totalProducts": 10,
-    "totalOrders": 25,
-    "lowStockProducts": [...],
-    "recentOrders": [...]
-  }
-}
-```
+---
 
 ## Response Format
 
+Every response follows the same structure:
+
 **Success:**
 ```json
-{ "success": true, "message": "...", "data": {} }
+{
+  "success": true,
+  "message": "Product created successfully",
+  "data": { ... }
+}
 ```
 
 **Error:**
 ```json
-{ "success": false, "message": "..." }
+{
+  "success": false,
+  "message": "Product not found"
+}
 ```
+
+---
 
 ## Roles & Permissions
 
-| Action                  | Admin | Staff |
-|-------------------------|-------|-------|
-| View products/orders    | ✅    | ✅    |
-| Create orders           | ✅    | ✅    |
-| Create/edit/delete products | ✅ | ❌  |
-| Update order status     | ✅    | ❌    |
+| Action                          | Admin | Staff |
+|---------------------------------|-------|-------|
+| View dashboard                  | ✅    | ✅    |
+| View products and orders        | ✅    | ✅    |
+| Create orders                   | ✅    | ✅    |
+| Create / edit / delete products | ✅    | ❌    |
+| Complete or cancel orders       | ✅    | ❌    |
+
+---
+
+## Database Schema
+
+The database has four tables:
+
+- **users** — stores user accounts with hashed passwords and roles
+- **products** — stores product catalog with SKU, price, and stock quantity
+- **orders** — stores order records linked to the user who created them
+- **order_items** — stores individual line items within each order (product, quantity, price at time of order)
+
+Relationships:
+- A user can have many orders
+- An order belongs to one user and has many order items
+- An order item belongs to one order and one product

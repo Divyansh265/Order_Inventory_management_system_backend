@@ -24,11 +24,11 @@ async function main() {
   });
 
   const products = [
-    { name: 'Laptop Pro 15', sku: 'LAP-001', price: 1299.99, stockQuantity: 50 },
-    { name: 'Wireless Mouse', sku: 'MOU-001', price: 29.99, stockQuantity: 200 },
+    { name: 'Laptop', sku: 'LAP-001', price: 1299.99, stockQuantity: 50 },
+    { name: 'Mouse', sku: 'MOU-001', price: 29.99, stockQuantity: 200 },
     { name: 'USB-C Hub', sku: 'HUB-001', price: 49.99, stockQuantity: 8 },
-    { name: 'Mechanical Keyboard', sku: 'KEY-001', price: 89.99, stockQuantity: 5 },
-    { name: 'Monitor 27"', sku: 'MON-001', price: 399.99, stockQuantity: 30 },
+    { name: 'Keyboard', sku: 'KEY-001', price: 89.99, stockQuantity: 5 },
+    { name: 'Monitor', sku: 'MON-001', price: 399.99, stockQuantity: 30 },
   ];
 
   for (const product of products) {

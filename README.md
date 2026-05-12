@@ -90,10 +90,10 @@ npm run db:seed
 
 After seeding, you can log in with:
 
-| Role  | Email                | Password       |
-|-------|----------------------|----------------|
-| Admin | admin@example.com    | password123    |
-| Staff | staff@example.com    | password123456 |
+| Role  | Email             | Password       |
+| ----- | ----------------- | -------------- |
+| Admin | admin@example.com | password123    |
+| Staff | staff@example.com | password123456 |
 
 ### 7. Start the development server
 
@@ -109,14 +109,14 @@ You can verify it's running by visiting http://localhost:5000/health — it shou
 
 ## Available Scripts
 
-| Script              | What it does                                      |
-|---------------------|---------------------------------------------------|
-| `npm run dev`       | Start the server with hot reload (nodemon)        |
-| `npm start`         | Start the server without hot reload               |
-| `npm run db:migrate`| Create and apply a new migration (development)    |
-| `npm run db:generate`| Regenerate the Prisma client after schema changes|
-| `npm run db:seed`   | Seed the database with default users and products |
-| `npm run db:studio` | Open Prisma Studio — a visual database browser   |
+| Script                | What it does                                      |
+| --------------------- | ------------------------------------------------- |
+| `npm run dev`         | Start the server with hot reload (nodemon)        |
+| `npm start`           | Start the server without hot reload               |
+| `npm run db:migrate`  | Create and apply a new migration (development)    |
+| `npm run db:generate` | Regenerate the Prisma client after schema changes |
+| `npm run db:seed`     | Seed the database with default users and products |
+| `npm run db:studio`   | Open Prisma Studio — a visual database browser    |
 
 ---
 
@@ -158,7 +158,7 @@ backend/
 │   ├── app.js               # Express app setup (middleware, routes)
 │   └── server.js            # Entry point — connects DB and starts server
 │
-├── .env                     # Your local environment variables (not committed)
+├── .env                     # Your local environment variables
 ├── package.json
 └── README.md
 ```
@@ -170,6 +170,7 @@ backend/
 All API routes are prefixed with `/api/v1`.
 
 Protected routes require the `Authorization` header:
+
 ```
 Authorization: Bearer <your_access_token>
 ```
@@ -178,15 +179,16 @@ Authorization: Bearer <your_access_token>
 
 ### Authentication
 
-| Method | Endpoint         | Auth Required | Description                        |
-|--------|------------------|---------------|------------------------------------|
-| POST   | /auth/login      | No            | Login and receive tokens           |
-| POST   | /auth/refresh    | No            | Get a new access token             |
-| GET    | /auth/me         | Yes           | Get the currently logged-in user   |
+| Method | Endpoint      | Auth Required | Description                      |
+| ------ | ------------- | ------------- | -------------------------------- |
+| POST   | /auth/login   | No            | Login and receive tokens         |
+| POST   | /auth/refresh | No            | Get a new access token           |
+| GET    | /auth/me      | Yes           | Get the currently logged-in user |
 
 **POST /auth/login**
 
 Request body:
+
 ```json
 {
   "email": "admin@example.com",
@@ -195,6 +197,7 @@ Request body:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -216,17 +219,18 @@ Response:
 
 ### Products
 
-| Method | Endpoint         | Auth | Role  | Description                        |
-|--------|------------------|------|-------|------------------------------------|
-| GET    | /products        | Yes  | Any   | List products (paginated + search) |
-| GET    | /products/:id    | Yes  | Any   | Get a single product               |
-| POST   | /products        | Yes  | Admin | Create a new product               |
-| PATCH  | /products/:id    | Yes  | Admin | Update a product                   |
-| DELETE | /products/:id    | Yes  | Admin | Delete a product                   |
+| Method | Endpoint      | Auth | Role  | Description                        |
+| ------ | ------------- | ---- | ----- | ---------------------------------- |
+| GET    | /products     | Yes  | Any   | List products (paginated + search) |
+| GET    | /products/:id | Yes  | Any   | Get a single product               |
+| POST   | /products     | Yes  | Admin | Create a new product               |
+| PATCH  | /products/:id | Yes  | Admin | Update a product                   |
+| DELETE | /products/:id | Yes  | Admin | Delete a product                   |
 
 **GET /products** — supports query params: `page`, `limit`, `search` (name), `sku`
 
 **POST /products** request body:
+
 ```json
 {
   "name": "Wireless Mouse",
@@ -240,16 +244,17 @@ Response:
 
 ### Orders
 
-| Method | Endpoint              | Auth | Role  | Description                        |
-|--------|-----------------------|------|-------|------------------------------------|
-| GET    | /orders               | Yes  | Any   | List orders (paginated + filter)   |
-| GET    | /orders/:id           | Yes  | Any   | Get order with full details        |
-| POST   | /orders               | Yes  | Any   | Create a new order                 |
-| PATCH  | /orders/:id/status    | Yes  | Admin | Update order status                |
+| Method | Endpoint           | Auth | Role  | Description                      |
+| ------ | ------------------ | ---- | ----- | -------------------------------- |
+| GET    | /orders            | Yes  | Any   | List orders (paginated + filter) |
+| GET    | /orders/:id        | Yes  | Any   | Get order with full details      |
+| POST   | /orders            | Yes  | Any   | Create a new order               |
+| PATCH  | /orders/:id/status | Yes  | Admin | Update order status              |
 
 **GET /orders** — supports query params: `page`, `limit`, `status` (pending / completed / cancelled)
 
 **POST /orders** request body:
+
 ```json
 {
   "items": [
@@ -262,6 +267,7 @@ Response:
 Creating an order automatically deducts stock from each product using a database transaction. If any product is out of stock, the entire order is rejected.
 
 **PATCH /orders/:id/status** request body:
+
 ```json
 { "status": "completed" }
 ```
@@ -270,9 +276,9 @@ Creating an order automatically deducts stock from each product using a database
 
 ### Dashboard
 
-| Method | Endpoint           | Auth | Description                        |
-|--------|--------------------|------|------------------------------------|
-| GET    | /dashboard/stats   | Yes  | Total products, orders, low stock, recent orders |
+| Method | Endpoint         | Auth | Description                                      |
+| ------ | ---------------- | ---- | ------------------------------------------------ |
+| GET    | /dashboard/stats | Yes  | Total products, orders, low stock, recent orders |
 
 ---
 
@@ -281,6 +287,7 @@ Creating an order automatically deducts stock from each product using a database
 Every response follows the same structure:
 
 **Success:**
+
 ```json
 {
   "success": true,
@@ -290,6 +297,7 @@ Every response follows the same structure:
 ```
 
 **Error:**
+
 ```json
 {
   "success": false,
@@ -302,7 +310,7 @@ Every response follows the same structure:
 ## Roles & Permissions
 
 | Action                          | Admin | Staff |
-|---------------------------------|-------|-------|
+| ------------------------------- | ----- | ----- |
 | View dashboard                  | ✅    | ✅    |
 | View products and orders        | ✅    | ✅    |
 | Create orders                   | ✅    | ✅    |
@@ -321,6 +329,7 @@ The database has four tables:
 - **order_items** — stores individual line items within each order (product, quantity, price at time of order)
 
 Relationships:
+
 - A user can have many orders
 - An order belongs to one user and has many order items
 - An order item belongs to one order and one product

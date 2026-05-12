@@ -7,8 +7,17 @@ import { errorHandler } from './middlewares/error.middleware.js';
 
 const app = express();
 
+const rawOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+const normalizedOrigin = rawOrigin.replace(/\/$/, '');
+const allowedOrigins = [normalizedOrigin, `${normalizedOrigin}/`];
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const clean = origin.replace(/\/$/, '');
+    if (clean === normalizedOrigin) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400,
